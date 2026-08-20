@@ -2,7 +2,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
-  View
+  View,
 } from 'react-native';
 
 import { Task } from '../../domain/entities/Task';
@@ -20,6 +20,10 @@ export function TaskItem({
     ? 'Completed'
     : 'Pending';
 
+  const statusColor = task.completed
+    ? '#2E7D32' // Green
+    : '#F9A825'; // Yellow
+
   return (
     <Pressable
       onPress={onPress}
@@ -31,8 +35,13 @@ export function TaskItem({
           {task.todo}
         </Text>
 
-        <Text style={styles.status}>
-          Status: {status}
+        <Text
+          style={[
+            styles.status,
+            { color: statusColor },
+          ]}
+        >
+        {status}
         </Text>
       </View>
     </Pressable>
@@ -58,5 +67,6 @@ const styles = StyleSheet.create({
 
   status: {
     fontSize: 14,
+    fontWeight: '600',
   },
 });
