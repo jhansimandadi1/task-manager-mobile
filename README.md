@@ -384,26 +384,4 @@ Run component tests:
 npx jest tests/TaskItem.test.tsx --runInBand
 ```
 
----
-
-# Future Improvements
-
-For a production application, the following could be added:
-
-* Offline-first persistence
-* SQLite/AsyncStorage persistence
-* Retry mechanism with exponential backoff
-* Request cancellation
-* Authentication and token refresh
-* Pagination
-* API caching
-* Optimistic updates
-* Structured logging
-* Crash reporting
-* CI/CD pipeline
-* E2E testing with Detox
-* Automated linting and formatting
-* Environment-specific API configuration
-
-These were intentionally kept outside the scope of this small assessment.
 
