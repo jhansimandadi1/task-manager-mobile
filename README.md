@@ -1,56 +1,409 @@
-# Welcome to your Expo app 👋
+# Task Manager Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A simple React Native task management application built with **Expo, TypeScript, and Clean Architecture**. The project demonstrates practical software engineering principles including REST API integration, CRUD operations, navigation, background processing, accessibility, and automated testing.
 
-## Get started
+## Overview
 
-1. Install dependencies
+The application allows users to:
 
-   ```bash
-   npm install
-   ```
+* View a list of tasks
+* See the task name and current status
+* Create a new task
+* Update a task
+* Delete a task
+* Navigate between task screens
+* Synchronise task information using a background task
+* Handle API failures gracefully
+* Run automated unit and component tests
 
-2. Start the app
+The application is intentionally kept small and focused because the assessment requires an implementation that can be completed within a few hours.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+# API / Data Source
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+The application uses **DummyJSON** as the REST API to demonstrate
+CRUD operations without requiring a custom backend.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+DummyJSON provides mock REST endpoints that are suitable for demonstrating
+API integration in a mobile application assessment.
 
-## Get a fresh project
+The application uses the DummyJSON Todo API for:
 
-When you're ready, run:
+- Fetching tasks
+- Creating tasks
+- Updating tasks
+- Deleting tasks
 
-```bash
-npm run reset-project
+## Architecture
+
+The project follows a simplified **Clean Architecture** approach.
+
+### Architecture responsibilities
+
+**Presentation**
+
+Responsible for:
+
+* Rendering UI
+* User interaction
+* Navigation
+* Displaying loading/error states
+* Dispatching application actions
+
+**Application**
+
+Contains business use cases such as:
+
+* `GetTasks`
+* `CreateTask`
+* `UpdateTask`
+* `DeleteTask`
+
+**Domain**
+
+Contains the core business models and abstractions.
+
+The domain layer does not depend on React Native, Expo or Axios.
+
+**Data**
+
+Responsible for:
+
+* REST API communication
+* Repository implementations
+* Mapping API responses to domain entities
+
+---
+
+## Project Structure
+
+```text
+TaskManager/
+│
+├── app/
+│   ├── _layout.tsx
+│   ├── index.tsx
+│   ├── create-task.tsx
+│   └── task/
+│       └── [id].tsx
+│
+├── src/
+│   │
+│   ├── domain/
+│   │   ├── entities/
+│   │   │   └── Task.ts
+│   │   │
+│   │   └── repositories/
+│   │       └── TaskRepository.ts
+│   │
+│   ├── application/
+│   │   └── useCases/
+│   │       ├── GetTasks.ts
+│   │       ├── CreateTask.ts
+│   │       ├── UpdateTask.ts
+│   │       └── DeleteTask.ts
+│   │
+│   ├── data/
+│   │   ├── api/
+│   │   │   └── apiClient.ts
+│   │   │
+│   │   └── repositories/
+│   │       └── TaskRepositoryImpl.ts
+│   │
+│   ├── presentation/
+│   │   ├── components/
+│   │   │   └── TaskItem.tsx
+│   │   │
+│   │   └── state/
+│   │       └── taskSlice.ts
+│   │
+│   └── infrastructure/
+│       └── background/
+│           ├── backgroundTask.ts
+│           └── registerBackgroundTask.ts
+│
+├── tests/
+│   ├── CreateTask.test.ts
+│   └── TaskItem.test.tsx
+│
+├── assets/
+├── .gitignore
+├── app.json
+├── package.json
+├── package-lock.json
+├── tsconfig.json
+└── README.md
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+# Features
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## 1. Task List
 
-## Learn more
+The main screen displays:
 
-To learn more about developing your project with Expo, look at the following resources:
+```text
+Task Name                 Status
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Complete assessment       Pending
+Submit application        Completed
+Prepare interview         Pending
+```
 
-## Join the community
+Each task displays its name and current status.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 2. Create Task
+
+Users can enter a task title.
+
+The application validates the input before sending the request to the API.
+
+For example:
+
+```text
+Task title: Complete assessment
+```
+
+Empty or whitespace-only task names are rejected.
+
+---
+
+## 3. Update Task
+
+Users can update the task information/status.
+
+The update operation is handled through the application use-case layer rather than directly from the UI.
+
+---
+
+## 4. Delete Task
+
+Tasks can be removed through the delete operation.
+
+The flow is:
+
+```text
+UI->DeleteTask use case->TaskRepository->API
+```
+
+---
+
+# API Integration
+
+The application uses Axios for HTTP communication.
+
+API responsibilities are isolated inside the data layer.
+
+Example:
+
+```text
+Presentation->GetTasks->TaskRepository->TaskRepositoryImpl->Axios->REST API
+```
+
+This separation allows the API implementation to be replaced without changing the business logic.
+
+---
+
+# Navigation
+
+The application uses **Expo Router** for file-based navigation.
+
+```text
+app/
+│
+├── index.tsx
+│       └── Task List
+│
+├── create-task.tsx
+│       └── Create Task
+│
+└── task/
+    └── [id].tsx
+            └── Task Details
+```
+
+Navigation configuration is defined in:
+
+```text
+app/_layout.tsx
+```
+
+Example:
+
+```tsx
+<Stack>
+  <Stack.Screen
+    name="index"
+    options={{ title: 'Tasks' }}
+  />
+
+  <Stack.Screen
+    name="create-task"
+    options={{ title: 'Create Task' }}
+  />
+
+  <Stack.Screen
+    name="task/[id]"
+    options={{ title: 'Task Details' }}
+  />
+</Stack>
+```
+
+---
+
+# Background Processing
+
+Background synchronization is implemented using:
+
+* `expo-background-task`
+* `expo-task-manager`
+
+The background task retrieves tasks and performs synchronization-related processing.
+
+```text
+Background Task
+       ↓
+Task Repository
+       ↓
+REST API
+```
+# State Management
+
+Redux Toolkit is used for application state where appropriate.
+
+The UI does not contain the core business logic.
+
+Redux is primarily responsible for maintaining and exposing application state to the presentation layer.
+
+---
+
+# Error Handling
+
+The application handles common failure scenarios including:
+
+* Empty task title
+* API failure
+* Background task failure
+* Loading state
+* Failed task retrieval
+
+Errors are handled at appropriate architectural boundaries rather than exposing raw API implementation details to the UI.
+
+---
+
+# Testing
+
+The project uses:
+
+* Jest
+* React Native Testing Library
+
+---
+
+# Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/jhansimandadi1/task-manager-mobile.git
+```
+
+Navigate to the project:
+
+```bash
+cd task-manager-mobile
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+---
+
+# Running the Application
+
+Start Expo:
+
+```bash
+npm start
+```
+
+### Web
+
+```bash
+npx expo start --web
+```
+
+### iOS
+
+Make sure an iOS Simulator is installed and available:
+
+```bash
+npx expo start --ios
+```
+
+### Android
+
+With an Android emulator/device configured:
+
+```bash
+npx expo start --android
+```
+
+---
+
+# Testing
+
+Run all tests:
+
+```bash
+npm test
+```
+
+Run tests once:
+
+```bash
+npm test -- --runInBand
+```
+
+Run a specific test:
+
+```bash
+npx jest tests/CreateTask.test.ts --runInBand
+```
+
+Run component tests:
+
+```bash
+npx jest tests/TaskItem.test.tsx --runInBand
+```
+
+---
+
+# Future Improvements
+
+For a production application, the following could be added:
+
+* Offline-first persistence
+* SQLite/AsyncStorage persistence
+* Retry mechanism with exponential backoff
+* Request cancellation
+* Authentication and token refresh
+* Pagination
+* API caching
+* Optimistic updates
+* Structured logging
+* Crash reporting
+* CI/CD pipeline
+* E2E testing with Detox
+* Automated linting and formatting
+* Environment-specific API configuration
+
+These were intentionally kept outside the scope of this small assessment.
+
